@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package serial;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option(gogoproto.goproto_getters_all) = false;
+
+// 消息统一外包装
+message ProtoWarpper {
+  // 消息名
+  string name = 1;
+  // 消息正文数据
+  bytes data = 2;
+}
+
+// 心跳检测，收到时回 Pong
+message Ping {}
+
+// 心跳检测，收到 Ping 时发送
+message Pong {}
