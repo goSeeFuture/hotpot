@@ -1,6 +1,6 @@
 # hotpot
 
-hotpot（[火锅](https://gitee.com/GodanKing/hotpot)）轻量网络框架。
+hotpot（[火锅](github.com/goSeeFuture/hotpot)）轻量网络框架。
 
 ## 特点
 
@@ -57,7 +57,7 @@ func main() {
 
     // 启动服务
     am.Start()
-    fmt.Println("github.com/goSeeFuture/hotpot 服务器就绪，监听地址", am.Listen())
+    fmt.Println("hotpot 服务器就绪，监听地址", am.Listen())
 
     // 等待关服信号，如 Ctrl+C、kill -2、kill -3、kill -15
     ch := make(chan os.Signal, 1)
