@@ -3,8 +3,8 @@ package network
 import (
 	"time"
 
+	"github.com/goSeeFuture/hotpot/codec"
 	"github.com/goSeeFuture/hotpot/hotpot"
-	"github.com/goSeeFuture/hotpot/serial"
 	"github.com/goSeeFuture/hub"
 
 	"github.com/rs/zerolog/log"
@@ -13,7 +13,7 @@ import (
 // setupKeepAlived 设置Agent保活
 func setupKeepAlived(s hotpot.IAgentMgr) {
 	hotpot.Route.Set("Ping", func(data []byte, a hotpot.IAgent) {
-		a.WriteMsg(&serial.Pong{})
+		a.WriteMsg(&codec.Pong{})
 	})
 	hotpot.Route.Set("Pong", func(data []byte, a hotpot.IAgent) {})
 }
@@ -42,7 +42,7 @@ func numbAgentDetect(s hotpot.IAgentMgr, kp keepalived) func() {
 
 				if diff > drMin && diff <= drMax {
 					// 测试连接
-					a.WriteMsg(&serial.Ping{})
+					a.WriteMsg(&codec.Ping{})
 				} else if diff > limit {
 					timeOutAgents = append(timeOutAgents, i)
 				}

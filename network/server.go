@@ -1,9 +1,10 @@
 package network
 
 import (
-	"github.com/goSeeFuture/hotpot/hotpot"
-	"github.com/goSeeFuture/hotpot/serial"
 	"net/url"
+
+	"github.com/goSeeFuture/hotpot/codec"
+	"github.com/goSeeFuture/hotpot/hotpot"
 
 	"github.com/rs/zerolog/log"
 )
@@ -12,7 +13,7 @@ type serverconfig struct {
 	// 监听地址
 	Listen string
 	// 消息序列化格式
-	Serialize serial.Type
+	Serialize codec.Type
 	// 文本协议，仅websocket支持
 	IsText bool
 
@@ -133,7 +134,7 @@ func TextMsg(enable bool) func(s *serverconfig) {
 	}
 }
 
-func Serialize(value serial.Type) func(s *serverconfig) {
+func Serialize(value codec.Type) func(s *serverconfig) {
 	return func(s *serverconfig) {
 		s.Serialize = value
 	}

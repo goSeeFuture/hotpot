@@ -1,8 +1,8 @@
 package network
 
 import (
+	"github.com/goSeeFuture/hotpot/codec"
 	"github.com/goSeeFuture/hotpot/hotpot"
-	"github.com/goSeeFuture/hotpot/serial"
 	"github.com/goSeeFuture/hotpot/union"
 )
 
@@ -23,9 +23,9 @@ type iMgr interface {
 	Agents() []hotpot.IAgent
 
 	// 消息序列化方式
-	Serializer() serial.Serializer
+	Serializer() codec.Serializer
 	// 序列化类型
-	SerializeType() serial.Type
+	SerializeType() codec.Type
 	// websocket 控制类型
 	WSControlType() union.ControlType
 

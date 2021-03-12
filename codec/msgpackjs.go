@@ -1,4 +1,4 @@
-package serial
+package codec
 
 import (
 	mp "github.com/vmihailenco/msgpack"

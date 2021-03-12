@@ -20,7 +20,7 @@ import (
     "fmt"
     "github.com/goSeeFuture/hotpot/hotpot"
     "github.com/goSeeFuture/hotpot/network"
-    "github.com/goSeeFuture/hotpot/serial"
+    "github.com/goSeeFuture/hotpot/codec"
     "os"
     "os/signal"
     "syscall"
@@ -35,7 +35,7 @@ func main() {
     // 创建websocket服务器
     am := network.Serve(
         "ws://127.0.0.1:8848",
-        network.Serialize(serial.JSON),
+        network.Serialize(codec.JSON),
         network.TextMsg(true),
     )
 

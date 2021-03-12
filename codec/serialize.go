@@ -1,4 +1,4 @@
-package serial
+package codec
 
 type Type string
 
@@ -43,8 +43,8 @@ var (
 )
 
 // Register 注册协议
-func Register(fmt Type, serial Serializer) {
-	_format[fmt] = serial
+func Register(fmt Type, codec Serializer) {
+	_format[fmt] = codec
 }
 
 // GetFormat 获取序列化格式

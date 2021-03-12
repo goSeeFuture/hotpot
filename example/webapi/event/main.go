@@ -3,13 +3,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/goSeeFuture/hotpot/hotpot"
-	"github.com/goSeeFuture/hotpot/network"
-	"github.com/goSeeFuture/hotpot/serial"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/goSeeFuture/hotpot/codec"
+	"github.com/goSeeFuture/hotpot/hotpot"
+	"github.com/goSeeFuture/hotpot/network"
 )
 
 // Echo协议结构
@@ -26,7 +27,7 @@ func echoServe() {
 	// 创建websocket服务器
 	am := network.Serve(
 		"ws://127.0.0.1:8848",
-		network.Serialize(serial.JSON),
+		network.Serialize(codec.JSON),
 		network.TextMsg(true),
 		network.Keepalived(60, 80),
 	)

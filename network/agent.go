@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/goSeeFuture/hotpot/codec"
 	"github.com/goSeeFuture/hotpot/hotpot"
-	"github.com/goSeeFuture/hotpot/serial"
 	"github.com/goSeeFuture/hotpot/union"
 	"github.com/goSeeFuture/hub"
 
@@ -136,7 +136,7 @@ func (a *agent) WriteMsg(msg interface{}) {
 
 	var keepavlied bool
 	switch msg.(type) {
-	case *serial.Ping, *serial.Pong:
+	case *codec.Ping, *codec.Pong:
 		keepavlied = true
 	}
 

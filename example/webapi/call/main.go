@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/goSeeFuture/hotpot/codec"
 	"github.com/goSeeFuture/hotpot/hotpot"
 	"github.com/goSeeFuture/hotpot/network"
-	"github.com/goSeeFuture/hotpot/serial"
 	"github.com/goSeeFuture/hub"
 )
 
@@ -28,7 +28,7 @@ func echoServe() {
 	// 创建websocket服务器
 	am := network.Serve(
 		"ws://127.0.0.1:8848",
-		network.Serialize(serial.JSON),
+		network.Serialize(codec.JSON),
 		network.TextMsg(true),
 		network.Keepalived(60, 80),
 	)

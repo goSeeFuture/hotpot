@@ -1,7 +1,7 @@
 package hotpot
 
 import (
-	"github.com/goSeeFuture/hotpot/serial"
+	"github.com/goSeeFuture/hotpot/codec"
 	"github.com/goSeeFuture/hotpot/union"
 )
 
@@ -26,6 +26,6 @@ type IAgentMgr interface {
 	Agents() []IAgent
 
 	Listen() string
-	Serializer() serial.Serializer
-	SerializeType() serial.Type
+	Serializer() codec.Serializer
+	SerializeType() codec.Type
 }

@@ -2,14 +2,15 @@ package network
 
 import (
 	"crypto/tls"
-	"github.com/goSeeFuture/hotpot/hotpot"
-	"github.com/goSeeFuture/hotpot/serial"
-	"github.com/goSeeFuture/hotpot/union"
 	"net"
 	"net/http"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/goSeeFuture/hotpot/codec"
+	"github.com/goSeeFuture/hotpot/hotpot"
+	"github.com/goSeeFuture/hotpot/union"
 
 	"github.com/rs/zerolog/log"
 
@@ -24,7 +25,7 @@ type WSServer struct {
 	upgrader websocket.Upgrader
 
 	config     serverconfig
-	serializer serial.Serializer
+	serializer codec.Serializer
 }
 
 // 创建websocket服务器
@@ -37,7 +38,7 @@ func newWSServer(config serverconfig) hotpot.IAgentMgr {
 			CheckOrigin:      func(_ *http.Request) bool { return true },
 		},
 		AgentMgr:   newAgentMgr(),
-		serializer: serial.Get(config.Serialize),
+		serializer: codec.Get(config.Serialize),
 	}
 
 	// 注册PONG消息处理
@@ -131,11 +132,11 @@ func (wss *WSServer) Shutdown(immediately bool) {
 }
 
 // Serializer 消息序列化方式
-func (wss *WSServer) Serializer() serial.Serializer {
+func (wss *WSServer) Serializer() codec.Serializer {
 	return wss.serializer
 }
 
-func (wss *WSServer) SerializeType() serial.Type {
+func (wss *WSServer) SerializeType() codec.Type {
 	return wss.config.Serialize
 }
 

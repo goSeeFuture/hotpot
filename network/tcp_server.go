@@ -1,12 +1,13 @@
 package network
 
 import (
-	"github.com/goSeeFuture/hotpot/hotpot"
-	"github.com/goSeeFuture/hotpot/serial"
-	"github.com/goSeeFuture/hotpot/union"
 	"net"
 	"sync/atomic"
 	"time"
+
+	"github.com/goSeeFuture/hotpot/codec"
+	"github.com/goSeeFuture/hotpot/hotpot"
+	"github.com/goSeeFuture/hotpot/union"
 
 	"github.com/rs/zerolog/log"
 )
@@ -17,7 +18,7 @@ type TCPServer struct {
 	shutdown func()
 
 	config     serverconfig
-	serializer serial.Serializer
+	serializer codec.Serializer
 }
 
 // 创建服务器对象
@@ -25,7 +26,7 @@ func newTCPServer(config serverconfig) hotpot.IAgentMgr {
 	s := &TCPServer{
 		config:     config,
 		AgentMgr:   newAgentMgr(),
-		serializer: serial.Get(config.Serialize),
+		serializer: codec.Get(config.Serialize),
 	}
 
 	// 注册PONG消息处理
@@ -97,12 +98,12 @@ func (ts *TCPServer) Shutdown(immediately bool) {
 }
 
 // Serializer 消息序列化方式
-func (ts *TCPServer) Serializer() serial.Serializer {
+func (ts *TCPServer) Serializer() codec.Serializer {
 	return ts.serializer
 }
 
 // Serializer 消息序列化类型
-func (ts *TCPServer) SerializeType() serial.Type {
+func (ts *TCPServer) SerializeType() codec.Type {
 	return ts.config.Serialize
 }
 
