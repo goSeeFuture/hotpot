@@ -82,11 +82,17 @@ func (wss *WSServer) Start() {
 			ln.Close()
 		}
 		httpServer := &http.Server{
-			Handler:        wss,
 			ReadTimeout:    httpTimeOut,
 			WriteTimeout:   httpTimeOut,
 			MaxHeaderBytes: 1024,
 		}
+		for _, e := range wss.config.HTTPHandleFuncs {
+			http.HandleFunc(e.Pattern, e.Handle)
+		}
+		for _, e := range wss.config.HTTPHandlers {
+			http.Handle(e.Pattern, e.Handler)
+		}
+		http.Handle(wss.config.Path, wss)
 
 		err = httpServer.Serve(ln)
 		if err != nil {

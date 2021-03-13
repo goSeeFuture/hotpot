@@ -15,6 +15,8 @@ type IAgent interface {
 	WriteMsg(interface{})
 	// 关闭连接
 	Close()
+	// 软关闭连接，只写
+	SoftClose()
 	// 已关闭
 	IsClosed() bool
 

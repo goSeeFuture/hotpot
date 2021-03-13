@@ -1,6 +1,7 @@
 package network
 
 import (
+	"net/http"
 	"net/url"
 
 	"github.com/goSeeFuture/hotpot/codec"
@@ -47,6 +48,22 @@ type serverconfig struct {
 	Host string
 	// 协议
 	Schema string
+	// 地址路径
+	Path string
+	// http处理函数
+	HTTPHandleFuncs []HTTPHandleFunc
+	// http处理对象
+	HTTPHandlers []HTTPHandler
+}
+
+type HTTPHandleFunc struct {
+	Pattern string
+	Handle  func(http.ResponseWriter, *http.Request)
+}
+
+type HTTPHandler struct {
+	Pattern string
+	Handler http.Handler
 }
 
 // Keepalived 保活检测设定
@@ -147,6 +164,18 @@ func SSL(certFile, keyFile string) func(s *serverconfig) {
 	}
 }
 
+func HTTPHandleFuncs(handles ...HTTPHandleFunc) func(s *serverconfig) {
+	return func(s *serverconfig) {
+		s.HTTPHandleFuncs = handles
+	}
+}
+
+func HTTPHandlers(handles ...HTTPHandler) func(s *serverconfig) {
+	return func(s *serverconfig) {
+		s.HTTPHandlers = handles
+	}
+}
+
 // 配置选项
 type Option func(*serverconfig)
 
@@ -182,10 +211,14 @@ func Serve(addr string, options ...Option) hotpot.IAgentMgr {
 	}
 
 	sc.Host = l.Host
+	sc.Path = l.Path
+	if l.Scheme == "ws" && sc.Path == "" {
+		sc.Path = "/"
+	}
 
 	var am hotpot.IAgentMgr
 	switch l.Scheme {
-	case "ws":
+	case "ws", "http":
 		am = newWSServer(sc)
 	case "tcp":
 		am = newTCPServer(sc)

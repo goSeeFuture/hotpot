@@ -14,6 +14,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// 连接读写状态
+type conniostate int
+
+const (
+	unknown   conniostate = iota
+	keep                  // 保持读写
+	close                 // 关闭
+	onlywrite             // 只写
+)
+
 type agent struct {
 	conn union.Conn
 
@@ -38,7 +48,7 @@ type agent struct {
 	delegated atomic.Value
 
 	// 是否已经关闭 bool
-	closed atomic.Value
+	iostate atomic.Value
 
 	// 最近一个消息接收时间 int64
 	lastRecvTime atomic.Value
@@ -66,13 +76,16 @@ func NewAgent(id int64, conn union.Conn, mgr iMgr) hotpot.IAgent {
 
 	// 初始化接收包时间，建立连接算作一次接收
 	a.lastRecvTime.Store(time.Now().Unix())
-	a.closed.Store(false)
+	a.iostate.Store(keep)
 	a.g.Attach(a.recvChan)
 	a.g.Attach(a.processChan)
 	a.delegated.Store(a.g)
 
 	go a.readMessage()
 	go a.delayWrite()
+
+	// 全服通知建立连接
+	_ = hotpot.Global.Emit(hotpot.EventAgentOpen, a)
 
 	return a
 }
@@ -153,21 +166,21 @@ func (a *agent) WriteMsg(msg interface{}) {
 	default:
 	}
 
-	if !a.isClosed() {
+	if a.ioState() != close {
 		a.sendChan <- data
 	}
 }
 
-func (a *agent) isClosed() bool {
-	return a.closed.Load().(bool)
+func (a *agent) ioState() conniostate {
+	return a.iostate.Load().(conniostate)
 }
 
 func (a *agent) Close() {
-	if a.isClosed() {
+	if a.IsClosed() {
 		log.Trace().Msg("already closed")
 		return
 	}
-	a.closed.Store(true)
+	a.iostate.Store(close)
 
 	a.g.Stop()        // 关闭集线器
 	a.mgr.DelAgent(a) // 通知Server释放连接
@@ -177,12 +190,17 @@ func (a *agent) Close() {
 	_ = hotpot.Global.Emit(hotpot.EventAgentClosed, a.Data())
 }
 
+// 关闭读消息，只写，待keepalive超时后主动断开
+func (a *agent) SoftClose() {
+	a.iostate.Store(true)
+}
+
 func (a *agent) readMessage() {
 	defer a.Close()
 
 	var err error
 	var data []byte
-	for !a.isClosed() {
+	for a.ioState() == keep {
 		// 放入队列
 		select {
 		case <-a.stopRecvChan:
@@ -219,7 +237,7 @@ func (a *agent) readMessage() {
 		default:
 		}
 
-		if !a.isClosed() {
+		if a.ioState() == keep {
 			a.recvChan <- data
 		}
 	}
@@ -228,7 +246,7 @@ func (a *agent) readMessage() {
 func (a *agent) delayWrite() {
 	defer a.Close()
 	var err error
-	for !a.isClosed() {
+	for a.ioState() != close {
 		select {
 		case <-a.stopSendChan:
 			if len(a.stopSendChan) == 0 {
@@ -319,7 +337,17 @@ func (a *agent) SetData(v interface{}) {
 
 // 已关闭
 func (a *agent) IsClosed() bool {
-	return a.closed.Load().(bool)
+	return a.iostate.Load().(conniostate) == close
+}
+
+// 是否保持读写
+func (a *agent) IsKeep() bool {
+	return a.iostate.Load().(conniostate) == keep
+}
+
+// 是否只写
+func (a *agent) IsOnlyWrite() bool {
+	return a.iostate.Load().(conniostate) == onlywrite
 }
 
 // 数据处理链
