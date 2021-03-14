@@ -1,7 +1,7 @@
 package codec
 
 import (
-	mp "github.com/vmihailenco/msgpack"
+	mp "github.com/vmihailenco/msgpack/v5"
 )
 
 const extJSBuffer = 0x1B

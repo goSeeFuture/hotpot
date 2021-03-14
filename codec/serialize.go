@@ -49,6 +49,7 @@ func Register(fmt Type, codec Serializer) {
 
 // GetFormat 获取序列化格式
 func Get(fmt Type) Serializer {
+	InitExt(fmt)
 	return _format[fmt]
 }
 

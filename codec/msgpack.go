@@ -4,8 +4,7 @@ import (
 	"bytes"
 
 	"github.com/rs/zerolog/log"
-
-	mp "github.com/vmihailenco/msgpack"
+	mp "github.com/vmihailenco/msgpack/v5"
 )
 
 // MessagePackWrapper 消息外包装
@@ -26,7 +25,9 @@ type SerialMessagePack struct{}
 // 强制使用数组模式序列化
 func marshalAsArray(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
-	err := mp.NewEncoder(&buf).StructAsArray(true).Encode(v)
+	enc := mp.NewEncoder(&buf)
+	enc.UseArrayEncodedStructs(true)
+	err := enc.Encode(v)
 	return buf.Bytes(), err
 }
 
