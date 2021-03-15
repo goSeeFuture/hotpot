@@ -1,10 +1,15 @@
 package codec
 
 import (
+	"encoding/binary"
+	"reflect"
+	"time"
+
 	mp "github.com/vmihailenco/msgpack/v5"
 )
 
 const extJSBuffer = 0x1B
+const extJSDate = 0x0D
 
 // MessagePackJSWrapper 消息外包装
 type MessagePackJSWrapper struct {
@@ -34,6 +39,20 @@ func (c *JSBuffer) UnmarshalMsgpack(b []byte) error {
 	return nil
 }
 
+func decJSDate(dec *mp.Decoder, v reflect.Value, extLen int) error {
+	buf8 := make([]byte, 8)
+	_, err := dec.Buffered().Read(buf8)
+	if err != nil {
+		return err
+	}
+
+	val := binary.BigEndian.Uint64(buf8)
+	ptr := v.Addr().Interface().(*time.Time)
+	*ptr = time.Unix(int64(val/1000), int64(val)%1000*int64(time.Millisecond))
+	return nil
+}
+
 func setupJSMessagePack() {
+	mp.RegisterExtDecoder(extJSDate, time.Time{}, decJSDate)
 	mp.RegisterExt(extJSBuffer, (*JSBuffer)(nil))
 }
