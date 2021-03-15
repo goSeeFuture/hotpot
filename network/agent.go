@@ -55,7 +55,8 @@ type agent struct {
 
 	id int64
 
-	data atomic.Value
+	data   atomic.Value
+	closed atomic.Value
 }
 
 // NewAgent 创建Agent
@@ -77,6 +78,7 @@ func NewAgent(id int64, conn union.Conn, mgr iMgr) hotpot.IAgent {
 	// 初始化接收包时间，建立连接算作一次接收
 	a.lastRecvTime.Store(time.Now().Unix())
 	a.iostate.Store(keep)
+	a.closed.Store(false)
 	a.g.Attach(a.recvChan)
 	a.g.Attach(a.processChan)
 	a.delegated.Store(a.g)
@@ -180,6 +182,8 @@ func (a *agent) Close() {
 		log.Trace().Msg("already closed")
 		return
 	}
+	log.Trace().Int64("id", a.id).Int("iostate", int(a.iostate.Load().(conniostate))).Msg("close agen")
+	a.closed.Store(true)
 	a.iostate.Store(close)
 
 	a.g.Stop()        // 关闭集线器
@@ -192,7 +196,7 @@ func (a *agent) Close() {
 
 // 关闭读消息，只写，待keepalive超时后主动断开
 func (a *agent) SoftClose() {
-	a.iostate.Store(true)
+	a.iostate.Store(onlywrite)
 }
 
 func (a *agent) readMessage() {
@@ -337,7 +341,7 @@ func (a *agent) SetData(v interface{}) {
 
 // 已关闭
 func (a *agent) IsClosed() bool {
-	return a.iostate.Load().(conniostate) == close
+	return a.closed.Load().(bool)
 }
 
 // 是否保持读写
