@@ -49,17 +49,11 @@ func Register(fmt Type, codec Serializer) {
 
 // GetFormat 获取序列化格式
 func Get(fmt Type) Serializer {
-	InitExt(fmt)
 	return _format[fmt]
 }
 
-// InitExt 初始化扩展类型
-// 返回格式化后的fmt
-func InitExt(fmt Type) {
-	ext, exist := _ext[fmt]
-	if !exist {
-		return
+func init() {
+	for _, e := range _ext {
+		e.Setup()
 	}
-
-	ext.Setup()
 }

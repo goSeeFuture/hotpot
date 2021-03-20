@@ -1,15 +1,10 @@
 package codec
 
 import (
-	"encoding/binary"
-	"reflect"
-	"time"
-
-	mp "github.com/vmihailenco/msgpack/v5"
+	"github.com/tinylib/msgp/msgp"
 )
 
 const extJSBuffer = 0x1B
-const extJSDate = 0x0D
 
 // MessagePackJSWrapper 消息外包装
 type MessagePackJSWrapper struct {
@@ -21,38 +16,32 @@ type MessagePackJSWrapper struct {
 func (w MessagePackJSWrapper) GetType() string { return w.Type }
 
 // GetData _
-func (w MessagePackJSWrapper) GetData() []byte { return w.Data.Data }
+func (w MessagePackJSWrapper) GetData() []byte { return []byte(w.Data) }
 
 // JSBuffer JavaScript的Buffer类型
-type JSBuffer struct {
-	Data []byte
-}
+type JSBuffer []byte
 
 // MarshalMsgpack 序列化JSBuffer
-func (c *JSBuffer) MarshalMsgpack() ([]byte, error) {
-	return mp.Marshal(c)
+func (c *JSBuffer) MarshalBinaryTo(b []byte) error {
+	copy(b, []byte(*c))
+	return nil
 }
 
 // UnmarshalMsgpack 反序列化JSBuffer
-func (c *JSBuffer) UnmarshalMsgpack(b []byte) error {
-	c.Data = b
+func (c *JSBuffer) UnmarshalBinary(b []byte) error {
+	*c = make([]byte, len(b))
+	copy(*c, b)
 	return nil
 }
 
-func decJSDate(dec *mp.Decoder, v reflect.Value, extLen int) error {
-	buf8 := make([]byte, 8)
-	_, err := dec.Buffered().Read(buf8)
-	if err != nil {
-		return err
-	}
+func (c *JSBuffer) Len() int {
+	return len(*c)
+}
 
-	val := binary.BigEndian.Uint64(buf8)
-	ptr := v.Addr().Interface().(*time.Time)
-	*ptr = time.Unix(int64(val/1000), int64(val)%1000*int64(time.Millisecond))
-	return nil
+func (c *JSBuffer) ExtensionType() int8 {
+	return extJSBuffer
 }
 
 func setupJSMessagePack() {
-	mp.RegisterExtDecoder(extJSDate, time.Time{}, decJSDate)
-	mp.RegisterExt(extJSBuffer, (*JSBuffer)(nil))
+	msgp.RegisterExtension(extJSBuffer, func() msgp.Extension { return new(JSBuffer) })
 }

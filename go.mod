@@ -9,6 +9,5 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/json-iterator/go v1.1.10
 	github.com/rs/zerolog v1.20.0
-	github.com/vmihailenco/msgpack/v5 v5.2.0
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	github.com/tinylib/msgp v1.1.5
 )
