@@ -173,6 +173,14 @@ am := network.Serve(
 )
 ```
 
+## Group使用说明
+
+[Group介绍](group.md)
+
+## demo
+
+[帧同步demo](https://github.com/goSeeFuture/lockstep)
+
 ## 鸣谢
 
 特别感谢 [Leaf](https://github.com/name5566/leaf) 库作者，hotpot 项目便是受其启发。
