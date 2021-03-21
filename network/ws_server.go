@@ -133,8 +133,13 @@ func (wss *WSServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Shutdown 停服
 func (wss *WSServer) Shutdown(immediately bool) {
-	wss.shutdown()
-	wss.Shutdown(immediately)
+	if immediately {
+		wss.shutdown()
+	} else {
+		for _, a := range wss.Agents() {
+			a.SoftClose()
+		}
+	}
 }
 
 // Serializer 消息序列化方式

@@ -93,8 +93,13 @@ func (ts *TCPServer) Start() {
 
 // Shutdown 停服
 func (ts *TCPServer) Shutdown(immediately bool) {
-	ts.shutdown()
-	ts.AgentMgr.Shutdown(immediately)
+	if immediately {
+		ts.shutdown()
+	} else {
+		for _, a := range ts.Agents() {
+			a.SoftClose()
+		}
+	}
 }
 
 // Serializer 消息序列化方式

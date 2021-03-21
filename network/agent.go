@@ -18,10 +18,9 @@ import (
 type conniostate int
 
 const (
-	unknown   conniostate = iota
-	keep                  // 保持读写
-	close                 // 关闭
-	onlywrite             // 只写
+	keep      conniostate = iota + 1 // 保持读写
+	close                            // 关闭
+	onlywrite                        // 只写
 )
 
 type agent struct {
