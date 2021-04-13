@@ -14,7 +14,7 @@ type IHelper interface {
 	ListenEvent(event string, handler func(arg interface{}))
 
 	// Call 调用事件，跨协程调用group中的函数
-	Call(event string, arg interface{}) (waitResult func() hub.Return, registered bool)
+	Call(event string, arg interface{}) (result hub.Return, registered bool)
 	// ListenCall 注册调用事件到组
 	ListenCall(event string, handler func(arg interface{}) hub.Return)
 

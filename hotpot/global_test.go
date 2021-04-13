@@ -26,11 +26,10 @@ func TestGlobalGroup(t *testing.T) {
 			return hub.Return{Value: strconv.Itoa(value) + "=>处理完成"}
 		})
 
-		waitResult, registered := Global.Call(CustomEvent, 331122)
+		ar, registered := Global.Call(CustomEvent, 331122)
 		if !registered {
 			t.Fatalf("`%s`没有注册处理函数", CustomEvent)
 		}
-		ar := waitResult()
 		if ar.Error != nil {
 			t.Fatalf("`%s`处理错误 %v", CustomEvent, ar.Error)
 		}

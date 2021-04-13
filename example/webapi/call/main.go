@@ -75,10 +75,8 @@ func webAPIServe() {
 			return
 		}
 
-		// 调用Group中的`广播`处理函数
-		waitResult, _ := hotpot.Global.Call("广播", msg[0])
-		// 等待调用返回结果
-		result := waitResult()
+		// 调用Group中的`广播`处理函数，并等待调用返回结果
+		result, _ := hotpot.Global.Call("广播", msg[0])
 
 		fmt.Fprintf(w, "向%d个客户端发送了广播消息", result.Value.(int))
 	})
